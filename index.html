@@ -3,155 +3,387 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Le Club — Events Landing 2026</title>
-<style>
-:root{
---bg:#f3f4f6;
---text:#0e0e11;
---muted:#6b7280;
---card:#ffffff;
---radius:28px;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui;background:linear-gradient(135deg,#e9f5ec,#f5e9ef,#e9ecf5);color:var(--text)}
-.container{max-width:1200px;margin:auto;padding:24px}
-
-/* NAV */
-.nav{display:flex;justify-content:center;margin-bottom:30px}
-.nav-inner{background:white;padding:10px 18px;border-radius:999px;display:flex;gap:20px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.08)}
-.logo{font-weight:900}
-.menu{background:#eee;padding:8px 14px;border-radius:999px}
-
-/* HERO */
-.hero{border-radius:30px;overflow:hidden;position:relative;margin-bottom:40px}
-.hero img{width:100%;height:420px;object-fit:cover}
-.hero-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;color:white;text-align:center;background:linear-gradient(transparent,rgba(0,0,0,.5))}
-.hero-overlay h1{font-size:48px;margin:0}
-.btn{margin-top:16px;padding:12px 20px;border-radius:999px;border:none;font-weight:600;cursor:pointer}
-.btn.primary{background:#2563eb;color:white}
-.btn.light{background:white}
-
-/* CAROUSEL */
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:40px}
-.card{position:relative;border-radius:30px;overflow:hidden;color:white}
-.card img{width:100%;height:420px;object-fit:cover}
-.card-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:end;padding:20px;background:linear-gradient(transparent,rgba(0,0,0,.7))}
-.card h3{margin:0;font-size:22px}
-.card .date{font-size:12px;opacity:.8;margin-bottom:6px}
-
-/* FILTER */
-.filter{display:flex;justify-content:center;gap:10px;margin-bottom:30px}
-.filter input{padding:12px;border-radius:999px;border:none;background:#e5e7eb}
-
-/* EVENTS LIST */
-.events{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.event{background:white;border-radius:30px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.06)}
-.event h4{margin:0 0 10px;font-size:20px}
-.event .meta{font-size:14px;color:var(--muted)}
-.lineup{margin:14px 0;font-size:14px}
-.prices{font-size:13px;color:var(--muted);margin-bottom:14px}
-.actions{display:flex;gap:10px}
-.actions button{flex:1;padding:12px;border-radius:999px;border:none;font-weight:600}
-.actions .buy{background:#111;color:white}
-.actions .vip{background:#eee}
-
-/* RESPONSIVE */
-@media(max-width:900px){
-.cards,.events{grid-template-columns:1fr}
-.hero-overlay h1{font-size:32px}
-}
-</style>
+<meta name="description" content="Le Club South Italy: nightlife premium, eventi internazionali, ristorante, tavoli VIP e TicketSMS." />
+<title>Le Club South Italy | Premium Nightlife</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 <div class="container">
 
-<div class="nav">
+<div class="nav header-visible">
 <div class="nav-inner">
-<div class="logo">LE CLUB</div>
-<div class="menu">Menu</div>
+<div class="logo"><img src="le-club-logo.svg" alt="Le Club South Italy" /></div>
+<a class="menu-toggle" href="mailto:vip@leclubsouthitaly.it">Prenota</a>
 </div>
 </div>
 
-<div class="hero">
-<img src="https://images.unsplash.com/photo-1571266028243-d220caa8bdf3" />
+<section class="hero" aria-label="Le Club South Italy">
+<img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1900&q=88" alt="" aria-hidden="true" />
 <div class="hero-overlay">
-<h1>OPENING PARTY 2026</h1>
-<button class="btn primary">Read More</button>
+<div class="hero-content">
+<h1>OPEN SEASON</h1>
+<div class="hero-actions">
+<a class="btn primary" href="mailto:vip@leclubsouthitaly.it">Book a Table</a>
 </div>
+</div>
+</div>
+</section>
+
+<section class="section" id="events">
+<div class="section-head events-head">
+<h2>EVENTS</h2>
 </div>
 
-<div class="cards">
-<div class="card">
-<img src="https://images.unsplash.com/photo-1560347876-aeef00ee58a1" />
+<div class="event-carousel">
+<div class="event-carousel-viewport">
+<div class="cards event-stack" aria-label="Le Club event formats">
+<article class="card event-card">
+<img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=86" alt="Crowd e luci premium durante una notte club" />
 <div class="card-overlay">
-<div class="date">25 APR 2026</div>
-<h3>Opening Party</h3>
-<button class="btn light">Buy Tickets</button>
+<div class="date">FRIDAY FORMAT</div>
+<h3>FREAK</h3>
+<p>Late energy, bold crowd, room in motion.</p>
+<a class="btn light" href="mailto:vip@leclubsouthitaly.it">Book now</a>
 </div>
-</div>
+</article>
 
-<div class="card">
-<img src="https://images.unsplash.com/photo-1520975922284-9e0ce827b0f3" />
+<article class="card event-card">
+<img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=86" alt="Atmosfera al tramonto con mood mediterraneo" />
 <div class="card-overlay">
-<div class="date">4 DATES</div>
-<h3>Argy & Artbat</h3>
-<button class="btn light">Buy Tickets</button>
+<div class="date">SUNSET RITUAL</div>
+<h3>SUNSET</h3>
+<p>Golden hour, dinner mood, night ahead.</p>
+<a class="btn light" href="mailto:vip@leclubsouthitaly.it">Book now</a>
 </div>
-</div>
+</article>
 
-<div class="card">
-<img src="https://images.unsplash.com/photo-1542204165-65bf26472b9b" />
+<article class="card event-card">
+<img src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1200&q=86" alt="Tavolo premium con hospitality e luci calde" />
 <div class="card-overlay">
-<div class="date">17 MAY 2026</div>
-<h3>Paco Osuna</h3>
-<button class="btn light">Buy Tickets</button>
+<div class="date">ITALIAN NIGHT</div>
+<h3>ITALIAN NIGHT</h3>
+<p>Classics, tables, voices all night.</p>
+<a class="btn light" href="mailto:vip@leclubsouthitaly.it">Book now</a>
+</div>
+</article>
+
+<article class="card event-card">
+<img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=86" alt="Console e luci nightclub con atmosfera urban" />
+<div class="card-overlay">
+<div class="date">URBAN FORMAT</div>
+<h3>TRAPPEATON</h3>
+<p>Bass, rhythm, private tables.</p>
+<a class="btn light" href="mailto:vip@leclubsouthitaly.it">Book now</a>
+</div>
+</article>
 </div>
 </div>
+</div>
+</section>
+
+<section class="section" id="restaurant">
+<div class="section-head">
+<div>
+<p class="section-kicker">Restaurant</p>
+<h2>Cena, cocktail e ritmo nella stessa destinazione.</h2>
+</div>
+<p class="section-lead">Il ristorante introduce la notte con piatti mediterranei, servizio attento e un passaggio naturale verso il club.</p>
 </div>
 
-<div class="filter">
-<input placeholder="From" />
-<input placeholder="To" />
-<button class="btn primary">Search</button>
+<div class="restaurant">
+<div class="feature-media">
+<img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1100&q=86" alt="Ristorante elegante con atmosfera calda e tavoli apparecchiati" />
+</div>
+<div class="feature-copy">
+<div class="eyebrow">Mediterranean dining</div>
+<h3>From dinner to dancefloor.</h3>
+<p>Una proposta pensata per pre-serata, compleanni, corporate night e tavoli privati: cucina contemporanea, cocktail signature e servizio hospitality fino all'ingresso in club.</p>
+<div class="detail-grid">
+<div class="detail">
+<strong>Dinner</strong>
+<span>Menu mediterraneo, sharing plates e pairing cocktail.</span>
+</div>
+<div class="detail">
+<strong>Private</strong>
+<span>Tavoli riservati per gruppi, eventi e special occasion.</span>
+</div>
+</div>
+<a class="btn primary" href="#location">Richiedi disponibilita</a>
+</div>
+</div>
+</section>
+
+<section class="section" id="location">
+<div class="section-head">
+<div>
+<p class="section-kicker">Location</p>
+<h2>Una destinazione premium nel Sud Italia.</h2>
+</div>
+<p class="section-lead">Facile da raggiungere, scenografica di notte, costruita per accogliere dinner, clubbing e VIP hospitality.</p>
 </div>
 
-<div class="events">
-
-<div class="event">
-<h4>Thursday, May 7 2026</h4>
-<div class="meta">Argy • Artbat</div>
-<div class="lineup">Kevin de Vries, Henri Bergmann, Belladonna</div>
-<div class="prices">Entry before 12AM €30 • Standard €50</div>
-<div class="actions">
-<button class="buy">Buy Tickets</button>
-<button class="vip">VIP Tables</button>
+<div class="location">
+<div class="location-panel">
+<h3>South Italy energy, European standard.</h3>
+<p>Le Club unisce atmosfera mediterranea e codici internazionali: lighting design, sound system, accoglienza curata e percorsi dedicati per ticket, tavoli e ospiti del ristorante.</p>
+<div class="location-list">
+<div><strong>Area</strong><span>South Italy</span></div>
+<div><strong>Experience</strong><span>Restaurant, club, VIP tables</span></div>
+<div><strong>Ticketing</strong><span>Digital access via TicketSMS</span></div>
 </div>
-</div>
-
-<div class="event">
-<h4>Friday, May 8 2026</h4>
-<div class="meta">CamelPhat</div>
-<div class="lineup">Adam Ten, Volokoder</div>
-<div class="prices">Entry before 1AM €40 • Standard €50</div>
-<div class="actions">
-<button class="buy">Buy Tickets</button>
-<button class="vip">VIP Tables</button>
-</div>
+<a class="btn dark" href="mailto:info@leclubsouthitaly.it">Contatta il club</a>
 </div>
 
-<div class="event">
-<h4>Saturday, May 9 2026</h4>
-<div class="meta">Black Coffee</div>
-<div class="lineup">WhoMadeWho, Manoo</div>
-<div class="prices">Entry before 1AM €80 • Standard €100</div>
-<div class="actions">
-<button class="buy">Buy Tickets</button>
-<button class="vip">VIP Tables</button>
+<div class="map-card">
+<img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=86" alt="Veduta mediterranea al tramonto nel Sud Italia" />
+<div class="map-label">
+<div>
+<strong>Le Club South Italy</strong>
+<span>Restaurant • Club • Private tables</span>
+</div>
+<a class="btn primary" href="https://www.google.com/maps/search/Le+Club+South+Italy" target="_blank" rel="noopener">Apri Maps</a>
 </div>
 </div>
+</div>
+</section>
+
+<footer class="footer">
+<div class="footer-grid">
+<div>
+<div class="footer-brand">Le Club</div>
+<p>Premium nightlife destination in South Italy. Dinner, club culture, international guests and private hospitality.</p>
+</div>
+<div>
+<h4>Explore</h4>
+<a href="#events">Upcoming events</a>
+<a href="#restaurant">Restaurant</a>
+<a href="#location">Location</a>
+</div>
+<div>
+<h4>Booking</h4>
+<a href="https://www.ticketsms.it/" target="_blank" rel="noopener">TicketSMS</a>
+<a href="mailto:vip@leclubsouthitaly.it">VIP tables</a>
+<a href="mailto:restaurant@leclubsouthitaly.it">Restaurant</a>
+</div>
+<div>
+<h4>Social</h4>
+<a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram</a>
+<a href="https://www.tiktok.com/" target="_blank" rel="noopener">TikTok</a>
+<a href="mailto:info@leclubsouthitaly.it">Contact</a>
+</div>
+</div>
+<div class="footer-bottom">
+<span>© 2026 Le Club South Italy</span>
+<span>Premium nightlife, restaurant and private events</span>
+</div>
+</footer>
 
 </div>
+<script>
+const hero = document.querySelector('.hero');
+const heroContent = document.querySelector('.hero-content');
+const header = document.querySelector('.nav');
+const eventCarousel = document.querySelector('.event-carousel');
+const eventViewport = document.querySelector('.event-carousel-viewport');
+const eventStack = document.querySelector('.event-stack');
+const eventCards = document.querySelectorAll('.event-card');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let previousScrollY = window.scrollY;
+let headerTicking = false;
 
-</div>
+if (hero && heroContent && !reduceMotion.matches) {
+let ticking = false;
+
+const updateHeroMotion = () => {
+const scrollRange = window.innerWidth < 700 ? 220 : 280;
+const rawProgress = window.scrollY / scrollRange;
+const progress = Math.min(Math.max(rawProgress, 0), 1);
+const safeEdge = window.innerWidth < 700 ? 28 : 42;
+const availableShift = Math.max((hero.offsetHeight - heroContent.offsetHeight) / 2 - safeEdge, 0);
+const desiredTravel = window.innerWidth < 700 ? 220 : 320;
+const travel = Math.min(desiredTravel, availableShift);
+const shift = -progress * travel;
+
+heroContent.style.setProperty('--hero-text-shift', `${shift}px`);
+ticking = false;
+};
+
+const requestHeroMotion = () => {
+if (!ticking) {
+requestAnimationFrame(updateHeroMotion);
+ticking = true;
+}
+};
+
+updateHeroMotion();
+window.addEventListener('scroll', requestHeroMotion, {passive:true});
+window.addEventListener('resize', requestHeroMotion);
+}
+
+if (header) {
+const updateHeaderVisibility = () => {
+const currentScrollY = Math.max(window.scrollY, 0);
+const scrollDelta = currentScrollY - previousScrollY;
+const nearTop = currentScrollY < 96;
+
+if (nearTop) {
+header.classList.add('header-visible');
+header.classList.remove('header-hidden');
+previousScrollY = currentScrollY;
+headerTicking = false;
+return;
+}
+
+if (Math.abs(scrollDelta) < 4) {
+headerTicking = false;
+return;
+}
+
+const scrollingUp = scrollDelta < 0;
+
+header.classList.toggle('header-visible', scrollingUp);
+header.classList.toggle('header-hidden', !scrollingUp);
+
+previousScrollY = currentScrollY;
+headerTicking = false;
+};
+
+const requestHeaderVisibility = () => {
+if (!headerTicking) {
+requestAnimationFrame(updateHeaderVisibility);
+headerTicking = true;
+}
+};
+
+updateHeaderVisibility();
+window.addEventListener('scroll', requestHeaderVisibility, {passive:true});
+}
+
+if (eventCarousel && eventViewport && eventStack && eventCards.length) {
+let activeEventIndex = 0;
+let startX = 0;
+let currentX = 0;
+let isDragging = false;
+let hasDragged = false;
+let isSwitching = false;
+
+const renderEventDeck = () => {
+eventCards.forEach((card) => {
+const depth = (index - activeEventIndex + eventCards.length) % eventCards.length;
+const visibleDepth = Math.min(depth, 3);
+const x = visibleDepth === 0 ? 0 : -18 * visibleDepth;
+const y = visibleDepth === 0 ? 0 : -18 * visibleDepth;
+const scale = 1 - visibleDepth * .045;
+const opacity = Math.max(.62, 1 - visibleDepth * .12);
+const blur = visibleDepth * .08;
+
+card.classList.toggle('is-active', depth === 0);
+card.dataset.depth = String(depth);
+card.style.zIndex = String(eventCards.length - depth);
+card.style.setProperty('--deck-x', `${x}px`);
+card.style.setProperty('--deck-y', `${y}px`);
+card.style.setProperty('--deck-drag', '0px');
+card.style.removeProperty('--deck-exit-x');
+card.style.setProperty('--deck-scale', scale.toFixed(3));
+card.style.setProperty('--deck-opacity', opacity.toFixed(3));
+card.style.setProperty('--deck-blur', `${blur.toFixed(2)}px`);
+});
+};
+
+const setActiveEvent = (index) => {
+activeEventIndex = (index + eventCards.length) % eventCards.length;
+renderEventDeck();
+};
+
+const goToEvent = (index, direction = 1) => {
+const nextIndex = (index + eventCards.length) % eventCards.length;
+if (nextIndex === activeEventIndex || isSwitching) return;
+
+const activeCard = eventCards[activeEventIndex];
+if (!activeCard || reduceMotion.matches) {
+setActiveEvent(nextIndex);
+return;
+}
+
+isSwitching = true;
+activeCard.classList.add('is-exiting');
+activeCard.style.zIndex = String(eventCards.length + 1);
+activeCard.style.setProperty('--deck-exit-x', `${direction > 0 ? 96 : -96}px`);
+
+window.setTimeout(() => {
+activeCard.classList.remove('is-exiting');
+setActiveEvent(nextIndex);
+isSwitching = false;
+}, 240);
+};
+
+eventCards.forEach((card, index) => {
+card.addEventListener('click', () => {
+if (!hasDragged) goToEvent(activeEventIndex + 1, 1);
+});
+
+card.querySelectorAll('a').forEach((link) => {
+link.addEventListener('click', (event) => event.stopPropagation());
+});
+});
+
+eventViewport.addEventListener('pointerdown', (event) => {
+if (event.target.closest('a')) return;
+if (isSwitching) return;
+isDragging = true;
+hasDragged = false;
+startX = event.clientX;
+currentX = startX;
+eventViewport.classList.add('is-dragging');
+eventViewport.setPointerCapture(event.pointerId);
+});
+
+eventViewport.addEventListener('pointermove', (event) => {
+if (!isDragging) return;
+currentX = event.clientX;
+const delta = currentX - startX;
+if (Math.abs(delta) > 6) hasDragged = true;
+const activeCard = eventCards[activeEventIndex];
+if (activeCard) activeCard.style.setProperty('--deck-drag', `${delta * .18}px`);
+});
+
+const finishDrag = (event) => {
+if (!isDragging) return;
+const delta = currentX - startX;
+const threshold = Math.min(86, eventCards[0].getBoundingClientRect().width * .2);
+
+if (delta < -threshold) goToEvent(activeEventIndex + 1, 1);
+else if (delta > threshold) goToEvent(activeEventIndex - 1, -1);
+else renderEventDeck();
+
+isDragging = false;
+eventViewport.classList.remove('is-dragging');
+if (event.pointerId !== undefined && eventViewport.hasPointerCapture(event.pointerId)) {
+eventViewport.releasePointerCapture(event.pointerId);
+}
+};
+
+eventViewport.addEventListener('pointerup', finishDrag);
+eventViewport.addEventListener('pointercancel', finishDrag);
+window.addEventListener('resize', renderEventDeck);
+renderEventDeck();
+
+if ('IntersectionObserver' in window && !reduceMotion.matches) {
+const eventReveal = new IntersectionObserver((entries) => {
+entries.forEach((entry) => {
+if (entry.isIntersecting) {
+eventCarousel.classList.add('is-visible');
+eventReveal.unobserve(eventCarousel);
+}
+});
+}, {threshold:.24});
+
+eventReveal.observe(eventCarousel);
+} else {
+eventCarousel.classList.add('is-visible');
+}
+}
+
+</script>
 </body>
 </html>
