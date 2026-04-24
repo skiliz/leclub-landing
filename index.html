@@ -228,8 +228,6 @@ const blockScale = 1 - coverProgress * .05;
 soundHeroBlock.style.setProperty('--sound-cover-progress', coverProgress.toFixed(3));
 soundHeroBlock.style.setProperty('--sound-cover-shift', `${blockShift.toFixed(2)}px`);
 soundHeroBlock.style.setProperty('--sound-cover-scale', blockScale.toFixed(3));
-
-soundHero.style.filter = `blur(${coverProgress * 6}px)`;
 }
 
 ticking = false;
@@ -245,6 +243,37 @@ ticking = true;
 updateHeroMotion();
 window.addEventListener('scroll', requestHeroMotion, {passive:true});
 window.addEventListener('resize', requestHeroMotion);
+}
+
+if (!reduceMotion.matches) {
+let blurTicking = false;
+const updateBlur = () => {
+const wrapper = document.querySelector('.scroll-wrapper');
+if (!wrapper || !soundHero) { blurTicking = false; return; }
+
+const scrolledOver = -wrapper.getBoundingClientRect().top;
+const heroHeight = soundHero.offsetHeight;
+const overlapStart = heroHeight * 0.75;
+const overlapFull = heroHeight;
+
+if (scrolledOver < overlapStart) {
+soundHero.style.filter = 'blur(0px)';
+} else {
+const progress = Math.min(
+(scrolledOver - overlapStart) / (overlapFull - overlapStart), 1
+);
+soundHero.style.filter = `blur(${progress * 4}px)`;
+}
+blurTicking = false;
+};
+
+window.addEventListener('scroll', () => {
+if (!blurTicking) {
+requestAnimationFrame(updateBlur);
+blurTicking = true;
+}
+}, {passive:true});
+updateBlur();
 }
 
 if (header) {
