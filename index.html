@@ -421,8 +421,6 @@ document.querySelector('.events-stack-wrap').classList.add('is-visible');
 (function () {
   'use strict';
 
-  const DEEZER_PROXY = '/api/deezer';
-  const DEEZER_DIRECT = 'https://api.deezer.com/playlist/5237028406/tracks?limit=50';
   const LOG  = (...a) => console.log('[LeClub]', ...a);
   const WARN = (...a) => console.warn('[LeClub]', ...a);
 
@@ -454,31 +452,39 @@ document.querySelector('.events-stack-wrap').classList.add('is-visible');
   const setLoading = (v) => spPlayer && spPlayer.classList.toggle('is-loading', v);
   const setPlaying = (v) => spPlayer && spPlayer.classList.toggle('is-playing', v);
 
-  // ── Playlist loader ──────────────────────────────────────────────
-  const loadPlaylist = async () => {
-    let data = null;
-    // Try Vercel proxy first, fall back to direct Deezer API
-    for (const url of [DEEZER_PROXY, DEEZER_DIRECT]) {
-      try {
-        LOG('Fetching ' + url + '...');
-        const r = await fetch(url);
-        if (r.ok) { data = await r.json(); break; }
-        LOG(url + ' returned ' + r.status);
-      } catch (e) {
-        LOG(url + ' failed: ' + e.message);
-      }
-    }
-    if (!data) { WARN('All Deezer sources failed'); return; }
-    tracks = (data.data || [])
-      .filter(t => t.preview)
-      .map(t => ({
-        title:       t.title,
-        artist:      t.artist.name,
-        preview_url: t.preview,
-        proxy_url:   '/api/audio?url=' + encodeURIComponent(t.preview),
-      }));
-    LOG(`Deezer tracks loaded: ${tracks.length} tracks`);
-    if (tracks.length) showTrack(0);
+  // ── Playlist loader (JSONP) ──────────────────────────────────────
+  const loadPlaylist = () => {
+    const cbName = '_dz_cb_' + Date.now();
+    const script = document.createElement('script');
+
+    const cleanup = () => {
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+
+    const timeout = setTimeout(() => {
+      cleanup();
+      WARN('Deezer JSONP timed out after 10 s');
+    }, 10000);
+
+    window[cbName] = (data) => {
+      clearTimeout(timeout);
+      cleanup();
+      tracks = (data.data || [])
+        .filter(t => t.preview)
+        .map(t => ({
+          title:       t.title,
+          artist:      t.artist.name,
+          preview_url: t.preview,
+          proxy_url:   '/api/audio?url=' + encodeURIComponent(t.preview),
+        }));
+      LOG(`Deezer tracks loaded: ${tracks.length} tracks`);
+      if (tracks.length) showTrack(0);
+    };
+
+    script.src = 'https://api.deezer.com/playlist/5237028406/tracks?limit=50&output=jsonp&callback=' + cbName;
+    script.onerror = () => { clearTimeout(timeout); cleanup(); WARN('Deezer JSONP script error'); };
+    document.head.appendChild(script);
   };
 
   // Update player metadata UI without starting audio
