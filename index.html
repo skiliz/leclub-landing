@@ -421,7 +421,8 @@ document.querySelector('.events-stack-wrap').classList.add('is-visible');
 (function () {
   'use strict';
 
-  const DEEZER_URL = '/api/deezer';
+  const DEEZER_PROXY = '/api/deezer';
+  const DEEZER_DIRECT = 'https://api.deezer.com/playlist/5237028406/tracks?limit=50';
   const LOG  = (...a) => console.log('[LeClub]', ...a);
   const WARN = (...a) => console.warn('[LeClub]', ...a);
 
@@ -455,24 +456,29 @@ document.querySelector('.events-stack-wrap').classList.add('is-visible');
 
   // ── Playlist loader ──────────────────────────────────────────────
   const loadPlaylist = async () => {
-    LOG('Fetching via Vercel proxy...');
-    try {
-      const r = await fetch(DEEZER_URL);
-      if (!r.ok) { LOG('Deezer fetch error: status ' + r.status); return; }
-      const data = await r.json();
-      tracks = (data.data || [])
-        .filter(t => t.preview)
-        .map(t => ({
-          title:       t.title,
-          artist:      t.artist.name,
-          preview_url: t.preview,
-          proxy_url:   '/api/audio?url=' + encodeURIComponent(t.preview),
-        }));
-      LOG(`Deezer tracks loaded: ${tracks.length} tracks`);
-      if (tracks.length) showTrack(0);
-    } catch (e) {
-      LOG('Deezer fetch error: ' + e.message);
+    let data = null;
+    // Try Vercel proxy first, fall back to direct Deezer API
+    for (const url of [DEEZER_PROXY, DEEZER_DIRECT]) {
+      try {
+        LOG('Fetching ' + url + '...');
+        const r = await fetch(url);
+        if (r.ok) { data = await r.json(); break; }
+        LOG(url + ' returned ' + r.status);
+      } catch (e) {
+        LOG(url + ' failed: ' + e.message);
+      }
     }
+    if (!data) { WARN('All Deezer sources failed'); return; }
+    tracks = (data.data || [])
+      .filter(t => t.preview)
+      .map(t => ({
+        title:       t.title,
+        artist:      t.artist.name,
+        preview_url: t.preview,
+        proxy_url:   '/api/audio?url=' + encodeURIComponent(t.preview),
+      }));
+    LOG(`Deezer tracks loaded: ${tracks.length} tracks`);
+    if (tracks.length) showTrack(0);
   };
 
   // Update player metadata UI without starting audio
@@ -527,43 +533,60 @@ document.querySelector('.events-stack-wrap').classList.add('is-visible');
     showTrack(idx);
     setLoading(true);
 
-    audio = new Audio(tracks[idx].proxy_url);
-    audio.volume = 0.8;
+    const tryAudio = (src, fallback) => {
+      const a = new Audio(src);
+      a.volume = 0.8;
 
-    audio.addEventListener('canplay', () => {
-      setLoading(false);
-      setPlaying(true);
-      if (!rafId) rafId = requestAnimationFrame(tick);
-    }, { once: true });
+      a.addEventListener('canplay', () => {
+        setLoading(false);
+        setPlaying(true);
+        if (!rafId) rafId = requestAnimationFrame(tick);
+      }, { once: true });
 
-    audio.addEventListener('ended', () => {
-      LOG('Track ended — advancing');
-      setPlaying(false);
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-      playTrack(cursor + 1);
-    });
+      a.addEventListener('ended', () => {
+        LOG('Track ended — advancing');
+        setPlaying(false);
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        playTrack(cursor + 1);
+      });
 
-    audio.addEventListener('error', () => {
-      const name = tracks[cursor] && tracks[cursor].title;
-      LOG('Error: audio failed to load' + (name ? ' — ' + name : ''));
-      setLoading(false);
-      setPlaying(false);
-    });
+      a.addEventListener('error', () => {
+        const name = tracks[cursor] && tracks[cursor].title;
+        LOG('Audio error' + (name ? ' — ' + name : '') + ' src=' + src);
+        if (fallback) {
+          LOG('Trying fallback URL...');
+          stopAudio();
+          tryAudio(fallback, null);
+        } else {
+          setLoading(false);
+          setPlaying(false);
+        }
+      });
 
-    audio.addEventListener('waiting',  () => setLoading(true));
-    audio.addEventListener('playing',  () => {
-      setLoading(false);
-      setPlaying(true);
-      if (!rafId) rafId = requestAnimationFrame(tick);
-    });
+      a.addEventListener('waiting',  () => setLoading(true));
+      a.addEventListener('playing',  () => {
+        setLoading(false);
+        setPlaying(true);
+        if (!rafId) rafId = requestAnimationFrame(tick);
+      });
 
-    try {
-      await audio.play();
-      LOG(`Playing: ${tracks[idx].title} by ${tracks[idx].artist}`);
-    } catch (e) {
-      LOG('Error: ' + e.message);
-      setLoading(false);
-    }
+      a.play().then(() => {
+        LOG(`Playing: ${tracks[idx].title} by ${tracks[idx].artist}`);
+      }).catch(e => {
+        LOG('Play error: ' + e.message);
+        if (fallback) {
+          LOG('Trying fallback URL...');
+          stopAudio();
+          tryAudio(fallback, null);
+        } else {
+          setLoading(false);
+        }
+      });
+
+      audio = a;
+    };
+
+    tryAudio(tracks[idx].proxy_url, tracks[idx].preview_url);
   };
 
   // ── Init ─────────────────────────────────────────────────────────
