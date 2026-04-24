@@ -466,6 +466,7 @@ document.querySelector('.events-stack-wrap').classList.add('is-visible');
           title:       t.title,
           artist:      t.artist.name,
           preview_url: t.preview,
+          proxy_url:   '/api/audio?url=' + encodeURIComponent(t.preview),
         }));
       LOG(`Deezer tracks loaded: ${tracks.length} tracks`);
       if (tracks.length) showTrack(0);
@@ -526,7 +527,7 @@ document.querySelector('.events-stack-wrap').classList.add('is-visible');
     showTrack(idx);
     setLoading(true);
 
-    audio = new Audio(tracks[idx].preview_url);
+    audio = new Audio(tracks[idx].proxy_url);
     audio.volume = 0.8;
 
     audio.addEventListener('canplay', () => {

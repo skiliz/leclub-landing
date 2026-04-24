@@ -140,11 +140,8 @@ pointer-events:none;
 --sound-cover-scale:1;
 width:min(100%,1180px);
 display:grid;
-grid-template-columns:minmax(0,1fr);
-grid-template-areas:
-"summer"
-"player"
-"shuffle";
+grid-template-columns:minmax(0,1fr) minmax(320px,420px) minmax(0,1fr);
+grid-template-areas:"summer player shuffle";
 justify-items:center;
 align-items:center;
 gap:clamp(18px,4vw,36px);
@@ -171,11 +168,11 @@ pointer-events:none;
 }
 .sound-label-left{
 grid-area:summer;
-justify-self:center;
+justify-self:end;
 }
 .sound-label-right{
 grid-area:shuffle;
-justify-self:center;
+justify-self:start;
 animation-delay:.26s,1.35s;
 }
 
@@ -639,16 +636,8 @@ font-size:13px;
 .nav-inner{width:min(316px,calc(100vw - 32px))}
 .hero{min-height:620px}
 .sound-hero{height:100vh}
-.sound-hero-stage{min-height:100vh;padding-bottom:clamp(120px,16vw,180px)}
-.sound-hero-block{
-width:min(100%,980px);
-grid-template-columns:minmax(0,1fr) minmax(320px,420px) minmax(0,1fr);
-grid-template-areas:"summer player shuffle";
-gap:clamp(18px,3vw,28px);
-}
+.sound-hero-stage{min-height:100vh}
 .sound-label{font-size:clamp(34px,6vw,68px)}
-.sound-label-left{justify-self:end}
-.sound-label-right{justify-self:start}
 .sound-player{width:min(100%,380px)}
 .section{padding-top:58px}
 .section-head{display:block}
@@ -658,6 +647,18 @@ gap:clamp(18px,3vw,28px);
 .event-card{width:min(82vw,600px)}
 .feature-media,.map-card{min-height:420px}
 .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:699px){
+.sound-hero-block{
+width:min(100%,360px);
+grid-template-columns:minmax(0,1fr);
+grid-template-areas:
+"summer"
+"player"
+"shuffle";
+gap:18px;
+}
+.sound-label-left,.sound-label-right{justify-self:center}
 }
 @media(max-width:560px){
 .container{padding:12px}
@@ -671,18 +672,8 @@ gap:clamp(18px,3vw,28px);
 min-height:100vh;
 padding:24px 0 120px;
 }
-.sound-hero-block{
-width:min(100%,360px);
-grid-template-columns:minmax(0,1fr);
-grid-template-areas:
-"summer"
-"player"
-"shuffle";
-gap:18px;
-}
 .sound-player{width:min(340px,calc(100vw - 48px));padding:15px 16px 13px}
 .sound-label{font-size:clamp(40px,11vw,64px);letter-spacing:-.01em}
-.sound-label-left,.sound-label-right{justify-self:center}
 .hero-overlay{padding:28px 20px}
 .hero-actions{width:100%}
 .hero-actions .btn{width:100%}
