@@ -373,6 +373,8 @@ border-radius:22px;
 background:#d9d0c3;
 box-shadow:0 22px 60px rgba(48,41,31,.1);
 isolation:isolate;
+transform:translate3d(0,var(--hero-parallax,0px),0);
+will-change:transform;
 }
 .hero>img{
 position:absolute;
@@ -422,6 +424,7 @@ color:white;
 .hero .btn.primary{background:#fff;color:#111;border-color:rgba(255,255,255,.76);box-shadow:none}
 
 @media(prefers-reduced-motion:reduce){
+.hero{transform:none;will-change:auto}
 .hero-content{transform:none;transition:none;will-change:auto}
 }
 

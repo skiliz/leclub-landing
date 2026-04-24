@@ -211,9 +211,16 @@ const shift = -progress * travel;
 
 heroContent.style.setProperty('--hero-text-shift', `${shift}px`);
 
-if (soundHero && soundHeroBlock) {
 const heroRect = hero.getBoundingClientRect();
-const covered = Math.max(0, window.innerHeight - heroRect.top) / window.innerHeight;
+const heroHeight = hero.offsetHeight;
+const viewportH = window.innerHeight;
+const travelDistance = heroHeight + viewportH;
+const traveled = viewportH - heroRect.top;
+const heroProgress = Math.min(Math.max(traveled / travelDistance, 0), 1);
+hero.style.setProperty('--hero-parallax', `${-(heroProgress * travelDistance * 0.35).toFixed(2)}px`);
+
+if (soundHero && soundHeroBlock) {
+const covered = Math.max(0, viewportH - heroRect.top) / viewportH;
 const coverProgress = Math.min(Math.max(covered, 0), 1);
 const blockShift = coverProgress * (window.innerWidth < 700 ? 52 : 76);
 const blockScale = 1 - coverProgress * .05;
