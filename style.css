@@ -113,16 +113,267 @@ transition:transform .2s ease,background .2s ease,border-color .2s ease,color .2
 .btn.ghost{background:rgba(255,255,255,.15);color:white;border-color:rgba(255,255,255,.42)}
 .btn.dark{background:#111;color:#fff}
 
+/* SOUND HERO (summer shuffle player — hero principale) */
+.sound-hero{
+--sound-stage-top:clamp(88px,10vh,132px);
+position:relative;
+margin-top:var(--hero-offset);
+margin-bottom:clamp(-160px,-18vw,-96px);
+min-height:calc(182svh - var(--hero-offset));
+background:transparent;
+z-index:1;
+}
+.sound-hero-stage{
+position:sticky;
+top:var(--sound-stage-top);
+min-height:calc(100svh - var(--sound-stage-top));
+display:grid;
+place-items:center;
+padding:clamp(24px,5vw,56px) 0 clamp(140px,18vw,220px);
+pointer-events:none;
+}
+.sound-hero-block{
+--sound-cover-progress:0;
+--sound-cover-shift:0px;
+--sound-cover-scale:1;
+width:min(100%,1180px);
+display:grid;
+grid-template-columns:minmax(0,1fr);
+grid-template-areas:
+"summer"
+"player"
+"shuffle";
+justify-items:center;
+align-items:center;
+gap:clamp(18px,4vw,36px);
+transform:translate3d(0,var(--sound-cover-shift),0) scale(var(--sound-cover-scale));
+transform-origin:center center;
+will-change:transform;
+pointer-events:none;
+}
+.sound-label{
+position:relative;
+font-size:clamp(44px,9vw,112px);
+line-height:.95;
+font-weight:300;
+letter-spacing:-.015em;
+color:var(--text);
+user-select:none;
+font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,sans-serif;
+white-space:nowrap;
+opacity:0;
+transform:translate3d(0,18px,0);
+animation:label-reveal .9s cubic-bezier(.22,1,.36,1) .08s forwards,
+  label-drift 12s ease-in-out 1.05s infinite alternate;
+pointer-events:none;
+}
+.sound-label-left{
+grid-area:summer;
+justify-self:center;
+}
+.sound-label-right{
+grid-area:shuffle;
+justify-self:center;
+animation-delay:.26s,1.35s;
+}
+
+/* 'summer' keeps the warm gradient per letter
+   La gradient è applicata ad ogni lettera singola (non al parent) perché
+   background-clip:text combinato con transform sui figli causa rendering
+   inconsistente. Ogni lettera ha il proprio slot di gradient calcolato
+   tramite --i per simulare una gradient continua. */
+.sound-label-left .sl{
+background-image:linear-gradient(100deg,#ff8e5a 0%,#ff5d8f 18%,#ffb347 38%,#ffd45c 58%,#ff8e5a 78%,#ff5d8f 100%);
+background-size:600% 100%;
+background-position:calc(var(--i) * 16% + 0%) 50%;
+-webkit-background-clip:text;
+background-clip:text;
+-webkit-text-fill-color:transparent;
+color:transparent;
+display:inline-block;
+}
+.sound-label-right .sl{
+display:inline-block;
+color:rgba(17,17,17,.92);
+}
+
+.sound-player{
+grid-area:player;
+position:relative;
+display:block;
+width:min(100%,420px);
+z-index:1;
+padding:16px 18px 14px;
+border-radius:22px;
+background:linear-gradient(160deg,#c78572 0%,#b97666 55%,#ae6c5d 100%);
+box-shadow:0 18px 40px rgba(88,48,36,.28),0 2px 8px rgba(88,48,36,.14),inset 0 1px 0 rgba(255,255,255,.12);
+color:#fff;
+cursor:pointer;
+transition:box-shadow .24s ease,transform .24s ease;
+}
+.sound-player:hover{
+box-shadow:0 22px 50px rgba(88,48,36,.3),0 2px 8px rgba(88,48,36,.14),inset 0 1px 0 rgba(255,255,255,.12);
+transform:translateY(-1px);
+}
+.sound-player svg{display:block;max-width:none}
+.sound-player-link{
+position:absolute;
+inset:0;
+z-index:4;
+display:block;
+background:transparent;
+cursor:pointer;
+border-radius:inherit;
+}
+.sound-player-link:focus-visible{
+outline:2px solid rgba(255,255,255,.78);
+outline-offset:4px;
+}
+.sp-top{display:flex;align-items:center;gap:12px}
+.sp-artwork{
+width:54px;height:54px;flex:0 0 54px;
+border-radius:9px;
+background:linear-gradient(150deg,#1a1440 0%,#0c1b38 55%,#0a1228 100%);
+display:flex;align-items:center;justify-content:center;
+padding:4px;
+box-shadow:0 1px 2px rgba(0,0,0,.2);
+overflow:hidden;
+}
+.sp-artwork span{
+font-size:8px;
+font-weight:600;
+text-transform:lowercase;
+letter-spacing:.02em;
+line-height:1.05;
+color:#fff;
+text-align:center;
+transform:rotate(-4deg);
+opacity:.92;
+}
+.sp-meta{flex:1;min-width:0}
+.sp-title{
+font-size:15px;font-weight:600;letter-spacing:-.005em;
+white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+color:#fff;
+}
+.sp-artist{
+font-size:13px;font-weight:400;
+color:rgba(255,255,255,.76);
+white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+margin-top:2px;
+}
+.sp-wave{
+width:18px;height:14px;flex:0 0 18px;
+opacity:.56;fill:#fff;
+}
+.sp-progress{
+display:flex;align-items:center;gap:8px;
+margin-top:14px;
+}
+.sp-time{
+font-size:10px;font-weight:500;
+color:rgba(255,255,255,.72);
+font-variant-numeric:tabular-nums;
+}
+.sp-bar{
+flex:1;height:3px;border-radius:2px;
+background:rgba(255,255,255,.28);
+overflow:hidden;
+cursor:pointer;
+}
+.sp-bar-fill{display:block;width:0;height:100%;background:rgba(255,255,255,.92);border-radius:2px}
+.sp-controls{
+display:flex;align-items:center;justify-content:center;
+gap:26px;
+margin-top:10px;
+padding:6px 0 2px;
+position:relative;
+z-index:5;
+}
+.sp-ctrl{
+display:inline-flex;align-items:center;justify-content:center;
+background:none;border:0;padding:4px;margin:0;
+color:#fff;cursor:pointer;
+transition:transform .14s ease,opacity .14s ease;
+position:relative;
+z-index:5;
+min-width:44px;
+min-height:44px;
+}
+.sp-ctrl:hover{opacity:.82}
+.sp-ctrl:active{transform:scale(.9)}
+.sp-ctrl:focus-visible{outline:2px solid rgba(255,255,255,.72);outline-offset:3px;border-radius:6px}
+.sp-ctrl svg{width:22px;height:22px;display:block}
+.sp-ctrl-play svg{width:20px;height:20px}
+.sp-ctrl-play{z-index:6;border-radius:999px}
+.sp-ctrl-airplay{position:absolute;right:14px;bottom:10px;opacity:.82;padding:6px}
+.sp-ctrl-airplay svg{width:18px;height:18px}
+.sp-ctrl-airplay.is-active{opacity:1;transform:scale(1.12)}
+
+/* ─── Spotify playback state ─────────────────────────────────────── */
+.sound-player{pointer-events:auto}
+.sp-bar{position:relative;z-index:5}
+.sp-ico-pause{display:none}
+
+/* Playing */
+.sound-player.is-playing .sp-ico-play{display:none}
+.sound-player.is-playing .sp-ico-pause{display:block}
+.sound-player.is-playing .sp-wave{opacity:.9}
+.sound-player.is-playing .sp-wave rect{animation:wave-pulse .52s ease-in-out infinite alternate}
+.sound-player.is-playing .sp-wave rect:nth-child(2){animation-delay:.1s}
+.sound-player.is-playing .sp-wave rect:nth-child(3){animation-delay:.22s}
+.sound-player.is-playing .sp-wave rect:nth-child(4){animation-delay:.34s}
+.sound-player.is-playing .sp-wave rect:nth-child(5){animation-delay:.46s}
+
+/* Loading — spinner replaces play/pause icon */
+.sound-player.is-loading .sp-ctrl-play .sp-ico-play,
+.sound-player.is-loading .sp-ctrl-play .sp-ico-pause{opacity:0}
+.sound-player.is-loading .sp-ctrl-play::after{
+content:'';
+position:absolute;
+inset:0;
+margin:auto;
+width:14px;height:14px;
+border:1.8px solid rgba(255,255,255,.22);
+border-top-color:rgba(255,255,255,.88);
+border-radius:50%;
+animation:sp-spin .65s linear infinite;
+}
+
+@keyframes label-reveal{
+to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes label-drift{
+0%{transform:translate3d(0,0,0)}
+100%{transform:translate3d(0,-4px,0)}
+}
+@keyframes wave-pulse{
+0%{transform:scaleY(.86)}
+100%{transform:scaleY(1)}
+}
+@keyframes sp-spin{
+to{transform:rotate(360deg)}
+}
+@keyframes player-progress{
+0%{width:22%}
+100%{width:76%}
+}
+
+@media(prefers-reduced-motion:reduce){
+.sound-hero-block{transform:none}
+.sound-label{animation:none;opacity:1;transform:none}
+}
+
 /* HERO */
 .hero{
 position:relative;
 min-height:clamp(560px,74vh,760px);
-margin-top:var(--hero-offset);
 overflow:hidden;
 border-radius:22px;
 background:#d9d0c3;
 box-shadow:0 22px 60px rgba(48,41,31,.1);
 isolation:isolate;
+z-index:2;
 }
 .hero>img{
 position:absolute;
@@ -393,7 +644,20 @@ font-size:13px;
 .container{padding:16px}
 .nav{--header-top:22px}
 .nav-inner{width:min(316px,calc(100vw - 32px))}
-.hero{min-height:620px;margin-top:var(--hero-offset)}
+.hero{min-height:620px}
+.sound-hero{min-height:calc(168svh - var(--hero-offset));margin-bottom:clamp(-132px,-16vw,-88px)}
+.sound-hero{--sound-stage-top:88px}
+.sound-hero-stage{min-height:calc(100svh - var(--sound-stage-top));padding-bottom:clamp(120px,16vw,180px)}
+.sound-hero-block{
+width:min(100%,980px);
+grid-template-columns:minmax(0,1fr) minmax(320px,420px) minmax(0,1fr);
+grid-template-areas:"summer player shuffle";
+gap:clamp(18px,3vw,28px);
+}
+.sound-label{font-size:clamp(34px,6vw,68px)}
+.sound-label-left{justify-self:end}
+.sound-label-right{justify-self:start}
+.sound-player{width:min(100%,380px)}
 .section{padding-top:58px}
 .section-head{display:block}
 .section-lead{margin-top:14px}
@@ -409,7 +673,28 @@ font-size:13px;
 .nav-inner{padding-left:12px}
 .logo img{height:20px;max-width:132px}
 .hero,.card,.feature-media,.feature-copy,.location-panel,.map-card{border-radius:14px}
-.hero{min-height:580px;margin-top:var(--hero-offset)}
+.hero{min-height:580px}
+.sound-hero{
+margin-bottom:-96px;
+min-height:calc(158svh - var(--hero-offset));
+--sound-stage-top:78px;
+}
+.sound-hero-stage{
+min-height:calc(100svh - var(--sound-stage-top));
+padding:24px 0 120px;
+}
+.sound-hero-block{
+width:min(100%,360px);
+grid-template-columns:minmax(0,1fr);
+grid-template-areas:
+"summer"
+"player"
+"shuffle";
+gap:18px;
+}
+.sound-player{width:min(340px,calc(100vw - 48px));padding:15px 16px 13px}
+.sound-label{font-size:clamp(40px,11vw,64px);letter-spacing:-.01em}
+.sound-label-left,.sound-label-right{justify-self:center}
 .hero-overlay{padding:28px 20px}
 .hero-actions{width:100%}
 .hero-actions .btn{width:100%}
