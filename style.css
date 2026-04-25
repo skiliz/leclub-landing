@@ -117,7 +117,6 @@ transition:transform .2s ease,background .2s ease,border-color .2s ease,color .2
 .scroll-wrapper{
 position:relative;
 isolation:isolate;
-overflow:clip;
 }
 
 /* SOUND HERO (summer shuffle player) */
@@ -375,10 +374,7 @@ margin:0 auto;
 overflow:hidden;
 border-radius:24px;
 background:#0a0a0a;
-box-shadow:0 22px 60px rgba(48,41,31,.1);
-isolation:isolate;
-transform:translate3d(0,var(--hero-parallax,0px),0);
-will-change:transform;
+transform:translateY(var(--hero-parallax,0px));
 }
 .hero>img{
 position:absolute;
@@ -428,11 +424,17 @@ color:white;
 .hero .btn.primary{background:#fff;color:#111;border-color:rgba(255,255,255,.76);box-shadow:none}
 
 @media(prefers-reduced-motion:reduce){
-.hero{transform:none;will-change:auto}
+.hero{transform:none}
 .hero-content{transform:none;transition:none;will-change:auto}
 }
 
 /* EVENTS */
+#events{
+background:var(--bg);
+border-radius:24px 24px 0 0;
+margin-top:0;
+padding-top:48px;
+}
 .events-head{
 display:block;
 max-width:none;
