@@ -17,9 +17,9 @@
 </div>
 </div>
 
-<div class="scroll-wrapper">
+<div class="scroll-wrapper" style="position:relative; isolation:isolate;">
 
-<section class="sound-hero" aria-label="Summer shuffle">
+<section class="sound-hero" aria-label="Summer shuffle" style="position:sticky;top:0;height:100vh;z-index:1;overflow:hidden;">
 <div class="sound-hero-stage">
 <div class="sound-hero-block">
 <span class="sound-label sound-label-left" aria-hidden="true"><span class="sl" style="--i:0">s</span><span class="sl" style="--i:1">u</span><span class="sl" style="--i:2">m</span><span class="sl" style="--i:3">m</span><span class="sl" style="--i:4">e</span><span class="sl" style="--i:5">r</span></span>
@@ -93,7 +93,7 @@ aria-label="Open Le Club playlist on Deezer"></a>
 </div>
 </section>
 
-<section class="hero" aria-label="Le Club South Italy">
+<section class="hero" aria-label="Le Club South Italy" style="position:relative;z-index:20;margin-top:0;">
 <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1900&q=88" alt="" aria-hidden="true" />
 <div class="hero-overlay">
 <div class="hero-content">
@@ -243,37 +243,6 @@ ticking = true;
 updateHeroMotion();
 window.addEventListener('scroll', requestHeroMotion, {passive:true});
 window.addEventListener('resize', requestHeroMotion);
-}
-
-if (!reduceMotion.matches) {
-let blurTicking = false;
-const updateBlur = () => {
-const wrapper = document.querySelector('.scroll-wrapper');
-if (!wrapper || !soundHero) { blurTicking = false; return; }
-
-const scrolledOver = -wrapper.getBoundingClientRect().top;
-const heroHeight = soundHero.offsetHeight;
-const overlapStart = heroHeight * 0.75;
-const overlapFull = heroHeight;
-
-if (scrolledOver < overlapStart) {
-soundHero.style.filter = 'blur(0px)';
-} else {
-const progress = Math.min(
-(scrolledOver - overlapStart) / (overlapFull - overlapStart), 1
-);
-soundHero.style.filter = `blur(${progress * 4}px)`;
-}
-blurTicking = false;
-};
-
-window.addEventListener('scroll', () => {
-if (!blurTicking) {
-requestAnimationFrame(updateBlur);
-blurTicking = true;
-}
-}, {passive:true});
-updateBlur();
 }
 
 if (header) {
@@ -700,6 +669,30 @@ document.querySelector('.events-stack-wrap').classList.add('is-visible');
   });
 })();
 
+
+window.addEventListener('scroll', () => {
+  const soundHero = document.querySelector('.sound-hero');
+  const openSeason = document.querySelector('.hero');
+  if (!soundHero || !openSeason) return;
+  const top = openSeason.getBoundingClientRect().top;
+  const vh = window.innerHeight;
+  const covered = Math.max(0, Math.min(1, 1 - (top / vh)));
+  soundHero.style.opacity = covered >= 1 ? '0' : String(1 - covered);
+  soundHero.style.visibility = covered >= 1 ? 'hidden' : 'visible';
+
+  // OPEN SEASON text parallax — moves from top to bottom of image
+  const heroContent = document.querySelector('.hero-content');
+  if (heroContent) {
+    const heroRect = openSeason.getBoundingClientRect();
+    const heroHeight = openSeason.offsetHeight;
+    const contentHeight = heroContent.offsetHeight;
+    const maxMove = heroHeight - contentHeight - 40;
+    const progress = Math.max(0, Math.min(1,
+      (vh - heroRect.top) / (vh + heroHeight)
+    ));
+    heroContent.style.transform = `translateX(-50%) translateY(${progress * maxMove}px)`;
+  }
+});
 </script>
 </body>
 </html>
