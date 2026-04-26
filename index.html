@@ -17,6 +17,8 @@
 </div>
 </div>
 
+</div>
+
 <div class="scroll-wrapper" style="position:relative; isolation:isolate;">
 
 <section class="sound-hero" aria-label="Summer shuffle" style="position:sticky;top:0;height:100vh;z-index:1;overflow:hidden;">
@@ -93,7 +95,7 @@ aria-label="Open Le Club playlist on Deezer"></a>
 </div>
 </section>
 
-<section class="hero" aria-label="Le Club South Italy" style="position:sticky;top:0;z-index:2;margin-top:0;">
+<section class="hero" aria-label="Le Club South Italy">
 <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1900&q=88" alt="" aria-hidden="true" />
 <div class="hero-overlay">
 <div class="hero-content">
@@ -105,7 +107,7 @@ aria-label="Open Le Club playlist on Deezer"></a>
 </div>
 </section>
 
-<section class="section" id="events" style="position:relative;z-index:3;margin-top:0;">
+<section class="section" id="events">
 <div class="section-head events-head">
 <h2>EVENTS</h2>
 </div>
@@ -154,6 +156,7 @@ aria-label="Open Le Club playlist on Deezer"></a>
 </div>
 
 <footer class="footer">
+<div class="container">
 <div class="footer-grid">
 <div>
 <div class="footer-brand">Le Club</div>
@@ -179,71 +182,16 @@ aria-label="Open Le Club playlist on Deezer"></a>
 <span>&copy; 2026 Le Club South Italy</span>
 <span>Premium nightlife, restaurant and private events</span>
 </div>
+</div>
 </footer>
 
-</div>
-
 <script>
-const hero = document.querySelector('.hero');
-const heroContent = document.querySelector('.hero-content');
-const soundHero = document.querySelector('.sound-hero');
-const soundHeroBlock = document.querySelector('.sound-hero-block');
 const header = document.querySelector('.nav');
 const eventsStack = document.querySelector('.events-stack');
 const eventCards = document.querySelectorAll('.event-card');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let previousScrollY = window.scrollY;
 let headerTicking = false;
-
-if (hero && heroContent && !reduceMotion.matches) {
-let ticking = false;
-
-const updateHeroMotion = () => {
-const scrollRange = window.innerWidth < 700 ? 220 : 280;
-const heroTop = hero.getBoundingClientRect().top + window.scrollY;
-const rawProgress = Math.max(window.scrollY - heroTop + window.innerHeight * .6, 0) / scrollRange;
-const progress = Math.min(Math.max(rawProgress, 0), 1);
-const safeEdge = window.innerWidth < 700 ? 28 : 42;
-const availableShift = Math.max((hero.offsetHeight - heroContent.offsetHeight) / 2 - safeEdge, 0);
-const desiredTravel = window.innerWidth < 700 ? 220 : 320;
-const travel = Math.min(desiredTravel, availableShift);
-const shift = -progress * travel;
-
-heroContent.style.setProperty('--hero-text-shift', `${shift}px`);
-
-const heroRect = hero.getBoundingClientRect();
-const heroHeight = hero.offsetHeight;
-const viewportH = window.innerHeight;
-const travelDistance = heroHeight + viewportH;
-const traveled = viewportH - heroRect.top;
-const heroProgress = Math.min(Math.max(traveled / travelDistance, 0), 1);
-hero.style.setProperty('--hero-parallax', `${-(heroProgress * travelDistance * 0.35).toFixed(2)}px`);
-
-if (soundHero && soundHeroBlock) {
-const covered = Math.max(0, viewportH - heroRect.top) / viewportH;
-const coverProgress = Math.min(Math.max(covered, 0), 1);
-const blockShift = coverProgress * (window.innerWidth < 700 ? 52 : 76);
-const blockScale = 1 - coverProgress * .05;
-
-soundHeroBlock.style.setProperty('--sound-cover-progress', coverProgress.toFixed(3));
-soundHeroBlock.style.setProperty('--sound-cover-shift', `${blockShift.toFixed(2)}px`);
-soundHeroBlock.style.setProperty('--sound-cover-scale', blockScale.toFixed(3));
-}
-
-ticking = false;
-};
-
-const requestHeroMotion = () => {
-if (!ticking) {
-requestAnimationFrame(updateHeroMotion);
-ticking = true;
-}
-};
-
-updateHeroMotion();
-window.addEventListener('scroll', requestHeroMotion, {passive:true});
-window.addEventListener('resize', requestHeroMotion);
-}
 
 if (header) {
 const updateHeaderVisibility = () => {
@@ -679,19 +627,6 @@ window.addEventListener('scroll', () => {
   const covered = Math.max(0, Math.min(1, 1 - (top / vh)));
   soundHero.style.opacity = covered >= 1 ? '0' : String(1 - covered);
   soundHero.style.visibility = covered >= 1 ? 'hidden' : 'visible';
-
-  // OPEN SEASON text parallax — moves from top to bottom of image
-  const heroContent = document.querySelector('.hero-content');
-  if (heroContent) {
-    const heroRect = openSeason.getBoundingClientRect();
-    const heroHeight = openSeason.offsetHeight;
-    const contentHeight = heroContent.offsetHeight;
-    const maxMove = heroHeight - contentHeight - 40;
-    const progress = Math.max(0, Math.min(1,
-      (vh - heroRect.top) / (vh + heroHeight)
-    ));
-    heroContent.style.transform = `translateX(-50%) translateY(${progress * maxMove}px)`;
-  }
 });
 </script>
 </body>
