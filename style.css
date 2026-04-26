@@ -444,29 +444,54 @@ border-radius:24px 24px 0 0;
 .events-head{
 display:block;
 max-width:none;
-margin:0 0 clamp(26px,5vw,54px);
+margin:0 0 clamp(24px,4vw,46px);
 text-align:center;
 }
 .events-head h2{max-width:none;font-size:clamp(40px,7vw,76px);line-height:.95}
 .events-stack-wrap{
-opacity:0;
-transform:translate3d(0,26px,0) scale(.985);
-transition:opacity .7s ease,transform .7s cubic-bezier(.22,1,.36,1);
-will-change:opacity,transform;
+opacity:1;
+transform:none;
+transition:none;
+perspective:1200px;
+perspective-origin:center 38%;
+transform-style:preserve-3d;
+overflow:hidden;
 }
-.events-stack-wrap.is-visible{opacity:1;transform:translate3d(0,0,0) scale(1)}
 .events-stack{
 position:relative;
-width:100%;
+width:min(100%,960px);
 height:600px;
+margin:0 auto;
 display:flex;
 align-items:center;
 justify-content:center;
 overflow:visible;
 touch-action:pan-y;
+transform-style:preserve-3d;
 }
 .events-stack.is-dragging{cursor:grabbing}
+.events-stack.is-animating{pointer-events:none}
 .event-card{
+--deck-x:0px;
+--deck-y:0px;
+--drag-x:0px;
+--exit-x:0px;
+--deck-scale:1;
+--deck-opacity:1;
+--reveal-opacity:0;
+--card-opacity:var(--reveal-opacity);
+--reveal-y:80px;
+--reveal-z:-120px;
+--reveal-rotate-x:8deg;
+--hover-y:0px;
+--hover-z:0px;
+--hover-scale:1;
+--motion-duration:620ms;
+--shadow-main:.24;
+--shadow-secondary:.18;
+--shadow-inset:.32;
+--content-opacity:0;
+--content-y:8px;
 width:min(82vw,860px);
 aspect-ratio:16/9;
 border-radius:32px;
@@ -479,14 +504,67 @@ user-select:none;
 background-size:cover;
 background-position:center;
 background-color:#101010;
-box-shadow:0 2px 0 0 rgba(255,255,255,.45) inset,0 40px 80px rgba(0,0,0,.3),0 12px 32px rgba(0,0,0,.2);
+box-shadow:0 2px 0 0 rgba(255,255,255,var(--shadow-inset)) inset,0 34px 72px rgba(0,0,0,var(--shadow-main)),0 10px 28px rgba(0,0,0,var(--shadow-secondary));
 outline:1.5px solid rgba(255,255,255,.5);
 outline-offset:-1.5px;
-transition:transform .45s cubic-bezier(.25,.46,.45,.94),opacity .4s ease;
+opacity:var(--card-opacity);
+transform:
+translate3d(
+calc(-50% + var(--deck-x) + var(--drag-x) + var(--exit-x)),
+calc(-50% + var(--deck-y) + var(--reveal-y) + var(--hover-y)),
+calc(var(--reveal-z) + var(--hover-z))
+)
+rotateX(var(--reveal-rotate-x))
+scale(var(--deck-scale))
+scale(var(--hover-scale));
+transform-style:preserve-3d;
+transform-origin:center center;
+backface-visibility:hidden;
+transition:
+opacity var(--motion-duration) cubic-bezier(.22,1,.36,1),
+transform var(--motion-duration) cubic-bezier(.22,1,.36,1),
+box-shadow 420ms cubic-bezier(.22,1,.36,1);
+transition-delay:var(--reveal-delay,0ms),var(--reveal-delay,0ms),0ms;
 will-change:transform,opacity;
 }
-.event-card.active{cursor:grab}
+.events-stack.is-dragging .event-card,
+.events-stack.is-handoff .event-card{
+transition:none;
+}
+.event-card.active,.event-card.is-active{cursor:grab}
 .event-card:not(.active){cursor:pointer}
+.event-card.is-revealed{
+--card-opacity:var(--deck-opacity);
+--reveal-opacity:1;
+--reveal-y:0px;
+--reveal-z:0px;
+--reveal-rotate-x:0deg;
+}
+.event-card:nth-child(1){--reveal-delay:0ms}
+.event-card:nth-child(2){--reveal-delay:120ms}
+.event-card:nth-child(3){--reveal-delay:240ms}
+.event-card:nth-child(4){--reveal-delay:360ms}
+.event-card.is-exiting{
+--drag-x:0px;
+--hover-y:0px;
+--hover-z:0px;
+--hover-scale:1;
+--card-opacity:1;
+--motion-duration:520ms;
+--shadow-main:.42;
+--shadow-secondary:.28;
+--shadow-inset:.42;
+--content-opacity:1;
+--content-y:0px;
+pointer-events:none;
+}
+.events-stack:not(.is-dragging):not(.is-animating) .event-card.is-revealed.active:not(.is-exiting):hover,
+.events-stack:not(.is-dragging):not(.is-animating) .event-card.is-revealed.is-active:not(.is-exiting):hover{
+--hover-y:-8px;
+--hover-z:20px;
+--hover-scale:1.015;
+box-shadow:0 2px 0 0 rgba(255,255,255,.45) inset,0 60px 120px rgba(0,0,0,.5),0 20px 48px rgba(0,0,0,.35);
+}
 .card-overlay{
 position:absolute;
 inset:0;
@@ -498,26 +576,51 @@ position:absolute;
 bottom:32px;
 left:0;
 right:0;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:0;
+width:100%;
+padding:0 clamp(24px,5vw,72px);
 text-align:center;
 color:white;
 z-index:2;
+opacity:var(--content-opacity);
+transform:translateY(var(--content-y));
+transition:opacity 260ms cubic-bezier(.22,1,.36,1),transform 260ms cubic-bezier(.22,1,.36,1);
+will-change:opacity,transform;
+pointer-events:none;
 }
+.event-card.is-active .card-content,
+.event-card.is-exiting .card-content{pointer-events:auto}
 .card-day{
 display:block;
+width:100%;
 font-size:12px;
 letter-spacing:.18em;
 text-transform:uppercase;
 opacity:.75;
-margin-bottom:8px;
+margin:0 0 10px;
+text-align:center;
 }
 .card-title{
+width:100%;
+max-width:760px;
 font-size:clamp(22px,4vw,46px);
 font-weight:800;
-margin:0 0 16px 0;
+margin:0 0 18px;
 line-height:1;
 text-transform:uppercase;
+text-align:center;
+text-wrap:balance;
 }
 .card-btn{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+align-self:center;
+min-width:116px;
 background:white;
 color:black;
 border:none;
@@ -526,6 +629,7 @@ border-radius:100px;
 font-size:14px;
 font-weight:600;
 cursor:pointer;
+margin:0 auto;
 transition:transform .2s ease,box-shadow .2s ease;
 }
 .card-btn:hover{
@@ -658,7 +762,7 @@ font-size:13px;
 .section-head{display:block}
 .section-lead{margin-top:14px}
 .restaurant,.location{grid-template-columns:1fr}
-.events-stack{height:520px}
+.events-stack{width:100%;height:520px}
 .event-card{width:min(82vw,600px)}
 .feature-media,.map-card{min-height:420px}
 .footer-grid{grid-template-columns:1fr 1fr}
@@ -696,11 +800,21 @@ padding:24px 0 120px;
 .events-stack{height:480px}
 .event-card{width:calc(100vw - 54px);border-radius:20px}
 .card-overlay{padding:0}
-.card-content{bottom:24px}
+.card-content{bottom:24px;padding:0 18px}
 .card-title{font-size:clamp(24px,8vw,40px)}
 .card-btn{padding:10px 24px;font-size:13px}
 .detail-grid,.footer-grid{grid-template-columns:1fr}
 .location-list div,.map-label,.footer-bottom{display:block}
 .location-list span{display:block;text-align:left;margin-top:5px}
 .map-label .btn{margin-top:14px;width:100%}
+}
+
+@media(prefers-reduced-motion:reduce){
+.event-card{
+transition:none;
+--reveal-opacity:1;
+--reveal-y:0px;
+--reveal-z:0px;
+--reveal-rotate-x:0deg;
+}
 }

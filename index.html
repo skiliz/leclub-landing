@@ -235,63 +235,222 @@ window.addEventListener('scroll', requestHeaderVisibility, {passive:true});
 if (eventsStack && eventCards.length) {
 let activeIndex = 0;
 let startX = 0;
+let startY = 0;
 let currentX = 0;
 let isDragging = false;
 let hasDragged = false;
 let isAnimating = false;
 
 const stackPositions = [
-{y:0, scale:1, zIndex:10},
-{y:-22, scale:.96, zIndex:9},
-{y:-38, scale:.92, zIndex:8}
+{x:0, y:0, scale:1, opacity:1, zIndex:10, shadowMain:.36, shadowSecondary:.24, inset:.45},
+{x:0, y:-18, scale:.96, opacity:.85, zIndex:9, shadowMain:.27, shadowSecondary:.18, inset:.34},
+{x:0, y:-34, scale:.92, opacity:.7, zIndex:8, shadowMain:.2, shadowSecondary:.14, inset:.28},
+{x:0, y:-50, scale:.88, opacity:.55, zIndex:7, shadowMain:.16, shadowSecondary:.1, inset:.22}
 ];
 
-function applyPositions() {
+const normalizeIndex = (index) => (index + eventCards.length) % eventCards.length;
+const handoffDuration = 640;
+const snapDuration = 360;
+const maxDepth = stackPositions.length - 1;
+const dragStartThreshold = 10;
+const dragDamping = .86;
+let dragDirection = 1;
+let dragProgress = 0;
+let dragX = 0;
+let animationFrame = null;
+
+const clamp = (value, min = 0, max = 1) => Math.max(min, Math.min(max, value));
+const lerp = (from, to, progress) => from + (to - from) * progress;
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const easePremium = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const depthFrom = (index, baseIndex) => normalizeIndex(index - baseIndex);
+const positionForDepth = (depth) => stackPositions[Math.min(depth, maxDepth)];
+const getCardWidth = () => {
+const activeCard = eventCards[activeIndex];
+return activeCard ? activeCard.getBoundingClientRect().width : window.innerWidth * .82;
+};
+const getExitDistance = () => Math.max(window.innerWidth * 1.2, getCardWidth() + window.innerWidth * .5);
+const getHandoffDistance = () => Math.max(getCardWidth() * .72, 220);
+const getSwipeThreshold = () => getCardWidth() * .24;
+
+function setCardMotion(card, {
+x = 0,
+y = 0,
+scale = 1,
+opacity = 1,
+dragX = '0px',
+exitX = '0px',
+shadowMain = .24,
+shadowSecondary = .18,
+inset = .32,
+contentOpacity = 0,
+contentY = '8px'
+}) {
+card.style.setProperty('--deck-x', `${x}px`);
+card.style.setProperty('--deck-y', `${y}px`);
+card.style.setProperty('--deck-scale', scale);
+card.style.setProperty('--deck-opacity', opacity);
+card.style.setProperty('--drag-x', dragX);
+card.style.setProperty('--exit-x', exitX);
+card.style.setProperty('--shadow-main', shadowMain);
+card.style.setProperty('--shadow-secondary', shadowSecondary);
+card.style.setProperty('--shadow-inset', inset);
+card.style.setProperty('--content-opacity', contentOpacity);
+card.style.setProperty('--content-y', contentY);
+}
+
+function setCardState(card, isActive, zIndex, pointerEvents) {
+card.classList.toggle('active', isActive);
+card.classList.toggle('is-active', isActive);
+card.classList.remove('is-exiting');
+card.style.zIndex = zIndex;
+card.style.pointerEvents = pointerEvents;
+}
+
+function renderRestingDeck() {
 eventCards.forEach((card, i) => {
 const depth = (i - activeIndex + eventCards.length) % eventCards.length;
-card.classList.toggle('active', depth === 0);
-if (depth < stackPositions.length) {
-const pos = stackPositions[depth];
-card.style.zIndex = pos.zIndex;
-card.style.transform = `translate(-50%, calc(-50% + ${pos.y}px)) scale(${pos.scale})`;
-card.style.opacity = depth === 0 ? '1' : '0.7';
-card.style.pointerEvents = depth === 0 ? 'auto' : 'none';
-} else {
-card.style.zIndex = 1;
-card.style.transform = `translate(-50%, calc(-50% + ${stackPositions[2].y}px)) scale(${stackPositions[2].scale})`;
-card.style.opacity = '0.5';
+const pos = positionForDepth(depth);
+setCardState(card, depth === 0, depth < stackPositions.length ? pos.zIndex : 1, depth === 0 ? 'auto' : 'none');
+setCardMotion(card, {
+x:pos.x,
+y:pos.y,
+scale:pos.scale,
+opacity:pos.opacity,
+shadowMain:pos.shadowMain,
+shadowSecondary:pos.shadowSecondary,
+inset:pos.inset,
+contentOpacity:depth === 0 ? 1 : 0,
+contentY:depth === 0 ? '0px' : '8px'
+});
+});
+}
+
+function renderHandoff(progress, direction, toIndex, outgoingX, fromIndex = activeIndex) {
+const p = clamp(progress);
+eventCards.forEach((card, i) => {
+const isOutgoing = i === fromIndex;
+const isIncoming = i === toIndex;
+const fromDepth = depthFrom(i, fromIndex);
+const toDepth = depthFrom(i, toIndex);
+const fromPos = positionForDepth(fromDepth);
+const toPos = positionForDepth(toDepth);
+
+if (isOutgoing) {
+card.classList.add('is-exiting');
+card.classList.remove('active', 'is-active');
+card.style.zIndex = 20;
 card.style.pointerEvents = 'none';
+setCardMotion(card, {
+x:0,
+y:0,
+scale:lerp(1, .985, p),
+opacity:1,
+exitX:`${outgoingX}px`,
+shadowMain:lerp(stackPositions[0].shadowMain, .42, p),
+shadowSecondary:lerp(stackPositions[0].shadowSecondary, .28, p),
+inset:lerp(stackPositions[0].inset, .42, p),
+contentOpacity:1,
+contentY:'0px'
+});
+return;
 }
+
+const incomingContentProgress = isIncoming ? clamp((p - .82) / .18) : 0;
+card.classList.remove('is-exiting');
+card.classList.toggle('active', isIncoming && p > .55);
+card.classList.toggle('is-active', isIncoming && p > .55);
+card.style.zIndex = isIncoming ? 19 : Math.max(toPos.zIndex, fromPos.zIndex);
+card.style.pointerEvents = 'none';
+setCardMotion(card, {
+x:lerp(fromPos.x, toPos.x, p),
+y:lerp(fromPos.y, toPos.y, p),
+scale:lerp(fromPos.scale, toPos.scale, p),
+opacity:lerp(fromPos.opacity, toPos.opacity, p),
+shadowMain:lerp(fromPos.shadowMain, toPos.shadowMain, p),
+shadowSecondary:lerp(fromPos.shadowSecondary, toPos.shadowSecondary, p),
+inset:lerp(fromPos.inset, toPos.inset, p),
+contentOpacity:incomingContentProgress,
+contentY:`${lerp(8, 0, incomingContentProgress)}px`
+});
 });
 }
 
-function sendToBack() {
-const card = eventCards[activeIndex];
-card.style.transition = 'transform 450ms ease, opacity 300ms ease';
-card.style.transform = `translate(-50%, calc(-50% + 0px)) rotate(8deg) scale(0.9)`;
-card.style.opacity = '0.3';
+function stopAnimation() {
+if (animationFrame) {
+cancelAnimationFrame(animationFrame);
+animationFrame = null;
+}
+}
 
-requestAnimationFrame(() => {
-requestAnimationFrame(() => {
-activeIndex = (activeIndex + 1) % eventCards.length;
-card.style.transition = 'none';
-card.style.opacity = '0.5';
-applyPositions();
-requestAnimationFrame(() => {
-card.style.transition = 'transform 450ms ease, opacity 300ms ease';
-setTimeout(() => {
-card.style.transition = '';
+function finishHandoff(toIndex) {
+activeIndex = toIndex;
+stopAnimation();
 isAnimating = false;
-}, 450);
-});
-});
+dragProgress = 0;
+dragX = 0;
+renderRestingDeck();
+requestAnimationFrame(() => {
+eventsStack.classList.remove('is-animating', 'is-handoff', 'is-dragging');
 });
 }
 
-function goToIndex(newIndex) {
-if (isAnimating) return;
+function animateHandoff(direction, toIndex, fromProgress = 0, fromX = 0) {
+if (reduceMotion.matches) {
+finishHandoff(toIndex);
+return;
+}
+
+stopAnimation();
 isAnimating = true;
-sendToBack();
+eventsStack.classList.add('is-animating', 'is-handoff');
+const fromIndex = activeIndex;
+const start = performance.now();
+const exitX = direction * getExitDistance();
+
+const frame = (now) => {
+const t = clamp((now - start) / handoffDuration);
+const eased = easePremium(t);
+const progress = lerp(fromProgress, 1, eased);
+const currentX = lerp(fromX, exitX, eased);
+renderHandoff(progress, direction, toIndex, currentX, fromIndex);
+if (t < 1) {
+animationFrame = requestAnimationFrame(frame);
+return;
+}
+finishHandoff(toIndex);
+};
+
+animationFrame = requestAnimationFrame(frame);
+}
+
+function animateSnapBack(direction, toIndex, fromProgress, fromX) {
+stopAnimation();
+eventsStack.classList.add('is-handoff');
+const fromIndex = activeIndex;
+const start = performance.now();
+
+const frame = (now) => {
+const t = clamp((now - start) / snapDuration);
+const eased = easeOut(t);
+const progress = lerp(fromProgress, 0, eased);
+const currentX = lerp(fromX, 0, eased);
+renderHandoff(progress, direction, toIndex, currentX, fromIndex);
+if (t < 1) {
+animationFrame = requestAnimationFrame(frame);
+return;
+}
+stopAnimation();
+isAnimating = false;
+dragProgress = 0;
+dragX = 0;
+renderRestingDeck();
+requestAnimationFrame(() => {
+eventsStack.classList.remove('is-handoff', 'is-dragging');
+});
+};
+
+animationFrame = requestAnimationFrame(frame);
 }
 
 eventsStack.addEventListener('pointerdown', (e) => {
@@ -299,41 +458,60 @@ if (e.target.closest('.card-btn')) return;
 if (isAnimating) return;
 isDragging = true;
 hasDragged = false;
+dragProgress = 0;
+dragX = 0;
 startX = e.clientX;
+startY = e.clientY;
 currentX = startX;
-eventsStack.classList.add('is-dragging');
-eventsStack.setPointerCapture(e.pointerId);
 });
 
 eventsStack.addEventListener('pointermove', (e) => {
 if (!isDragging) return;
 currentX = e.clientX;
 const delta = currentX - startX;
-if (Math.abs(delta) > 6) hasDragged = true;
-const activeCard = eventCards[activeIndex];
-if (activeCard) {
-const tilt = Math.max(-6, Math.min(6, delta * 0.02));
-activeCard.style.transition = 'none';
-activeCard.style.transform = `translate(-50%, calc(-50% + 0px)) scale(1) rotate(${tilt}deg) translateX(${delta * 0.3}px)`;
+const verticalDelta = e.clientY - startY;
+
+if (!hasDragged && Math.abs(verticalDelta) > Math.abs(delta) && Math.abs(verticalDelta) > 10) {
+isDragging = false;
+return;
 }
+
+if (Math.abs(delta) > dragStartThreshold) {
+hasDragged = true;
+eventsStack.classList.add('is-dragging');
+if (e.pointerId !== undefined && !eventsStack.hasPointerCapture(e.pointerId)) {
+eventsStack.setPointerCapture(e.pointerId);
+}
+}
+
+if (!hasDragged) return;
+if (e.cancelable) e.preventDefault();
+dragX = delta * dragDamping;
+dragDirection = delta >= 0 ? 1 : -1;
+const targetIndex = normalizeIndex(activeIndex + (dragDirection < 0 ? 1 : -1));
+dragProgress = clamp(Math.abs(dragX) / getHandoffDistance());
+renderHandoff(dragProgress, dragDirection, targetIndex, dragX);
 });
 
 const finishDrag = (e) => {
 if (!isDragging) return;
 const delta = currentX - startX;
-const threshold = 50;
+const threshold = getSwipeThreshold();
+
+if (!hasDragged) {
+isDragging = false;
+dragProgress = 0;
+dragX = 0;
+return;
+}
 
 if (Math.abs(delta) > threshold && hasDragged) {
-goToIndex(activeIndex + (delta < 0 ? 1 : -1));
+const direction = delta >= 0 ? 1 : -1;
+const targetIndex = normalizeIndex(activeIndex + (direction < 0 ? 1 : -1));
+animateHandoff(direction, targetIndex, dragProgress, dragX);
 } else {
-const activeCard = eventCards[activeIndex];
-if (activeCard) {
-activeCard.style.transition = 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-applyPositions();
-setTimeout(() => {
-activeCard.style.transition = '';
-}, 550);
-}
+const targetIndex = normalizeIndex(activeIndex + (dragDirection < 0 ? 1 : -1));
+animateSnapBack(dragDirection, targetIndex, dragProgress, dragX);
 }
 
 isDragging = false;
@@ -347,27 +525,55 @@ eventsStack.addEventListener('pointerup', finishDrag);
 eventsStack.addEventListener('pointercancel', finishDrag);
 
 eventCards.forEach((card, i) => {
-card.querySelector('.card-btn').addEventListener('click', (e) => {
+const button = card.querySelector('.card-btn');
+if (button) {
+button.addEventListener('click', (e) => {
 e.stopPropagation();
 });
+}
+
 });
 
-applyPositions();
+renderRestingDeck();
 
-if ('IntersectionObserver' in window && !reduceMotion.matches) {
-const eventReveal = new IntersectionObserver((entries) => {
+const revealEventCards = () => {
+if (reduceMotion.matches) {
+eventCards.forEach((card) => {
+card.classList.add('is-revealed');
+card.style.setProperty('--reveal-delay', '0ms');
+});
+return;
+}
+
+if (!('IntersectionObserver' in window)) {
+eventCards.forEach((card) => {
+card.classList.add('is-revealed');
+card.style.setProperty('--reveal-delay', '0ms');
+});
+return;
+}
+
+const observer = new IntersectionObserver((entries) => {
 entries.forEach((entry) => {
 if (entry.isIntersecting) {
-document.querySelector('.events-stack-wrap').classList.add('is-visible');
-eventReveal.unobserve(entry.target);
+const card = entry.target;
+const delay = Number.parseFloat(getComputedStyle(card).getPropertyValue('--reveal-delay')) || 0;
+card.classList.add('is-revealed');
+setTimeout(() => {
+card.style.setProperty('--reveal-delay', '0ms');
+}, delay + 850);
+observer.unobserve(card);
 }
 });
-}, {threshold:.24});
+}, {
+threshold:0.15,
+rootMargin:'0px 0px -60px 0px'
+});
 
-eventReveal.observe(document.querySelector('.events-stack-wrap'));
-} else {
-document.querySelector('.events-stack-wrap').classList.add('is-visible');
-}
+eventCards.forEach((card) => observer.observe(card));
+};
+
+revealEventCards();
 }
 
 // ─── Deezer Preview Player ─────────────────────────────────────────
